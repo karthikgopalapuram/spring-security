@@ -18,21 +18,22 @@ package org.springframework.security.config.debug
 import org.springframework.security.config.BeanIds
 import org.springframework.security.config.http.AbstractHttpConfigTests
 import org.springframework.security.web.FilterChainProxy;
+import org.springframework.security.web.debug.DebugFilter;
 
 class SecurityDebugBeanFactoryPostProcessorTest extends AbstractHttpConfigTests {
 
-    // SEC-1885
-    def 'SEC-1885 - SecurityDebugBeanFactoryPostProcessor works when dependencies have Autowired constructor'() {
-        when: 'debug used and FilterChainProxy has dependency with @Autowired constructor'
-        xml.debug()
-        httpAutoConfig {}
-        xml.'authentication-manager'() {
-            'authentication-provider'('ref': 'authProvider')
-        }
-        xml.'context:component-scan'('base-package':'org.springframework.security.config.debug')
-        createAppContext('')
-        then: 'TestAuthenticationProvider.<init>() is not thrown'
-        appContext.getBean(BeanIds.SPRING_SECURITY_FILTER_CHAIN) instanceof DebugFilter
-        appContext.getBean(BeanIds.FILTER_CHAIN_PROXY) instanceof FilterChainProxy
-    }
+	// SEC-1885
+	def 'SEC-1885 - SecurityDebugBeanFactoryPostProcessor works when dependencies have Autowired constructor'() {
+		when: 'debug used and FilterChainProxy has dependency with @Autowired constructor'
+		xml.debug()
+		httpAutoConfig {}
+		xml.'authentication-manager'() {
+			'authentication-provider'('ref': 'authProvider')
+		}
+		xml.'context:component-scan'('base-package':'org.springframework.security.config.debug')
+		createAppContext('')
+		then: 'TestAuthenticationProvider.<init>() is not thrown'
+		appContext.getBean(BeanIds.SPRING_SECURITY_FILTER_CHAIN) instanceof DebugFilter
+		appContext.getBean(BeanIds.FILTER_CHAIN_PROXY) instanceof FilterChainProxy
+	}
 }

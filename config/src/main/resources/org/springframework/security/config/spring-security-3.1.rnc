@@ -280,7 +280,7 @@ http-firewall =
     element http-firewall {ref}
 
 http =
-    ## Container element for HTTP security configuration. Multiple elements can now be defined, each with a specific pattern to which the enclosed security configuration applies. A pattern can also be configured to bypass Spring Security's filters completely by setting the "secured" attribute to "false".
+    ## Container element for HTTP security configuration. Multiple elements can now be defined, each with a specific pattern to which the enclosed security configuration applies. A pattern can also be configured to bypass Spring Security's filters completely by setting the "security" attribute to "none".
     element http {http.attlist, (intercept-url* & access-denied-handler? & form-login? & openid-login? & x509? & jee? & http-basic? & logout? & session-management & remember-me? & anonymous? & port-mappings & custom-filter* & request-cache? & expression-handler?) }
 http.attlist &=
     ## The request URL pattern which will be mapped to the filter chain created by this <http> element. If omitted, the filter chain will match all requests.
@@ -370,7 +370,7 @@ logout =
     ## Incorporates a logout processing filter. Most web applications require a logout filter, although you may not require one if you write a controller to provider similar logic.
     element logout {logout.attlist, empty}
 logout.attlist &=
-    ## Specifies the URL that will cause a logout. Spring Security will initialize a filter that responds to this particular URL. Defaults to /j_spring_security_logout if unspecified.
+    ## Specifies the URL that will cause a logout. Spring Security will initialize a filter that responds to this particular URL. Defaults to /logout if unspecified.
     attribute logout-url {xsd:token}?
 logout.attlist &=
     ## Specifies the URL to display once the user has logged out. If not specified, defaults to /.
@@ -393,13 +393,13 @@ form-login =
     ## Sets up a form login configuration for authentication with a username and password
     element form-login {form-login.attlist, empty}
 form-login.attlist &=
-    ## The URL that the login form is posted to. If unspecified, it defaults to /j_spring_security_check.
+    ## The URL that the login form is posted to. If unspecified, it defaults to /login.
     attribute login-processing-url {xsd:token}?
 form-login.attlist &=
-    ## The name of the request parameter which contains the username. Defaults to 'j_username'.
+    ## The name of the request parameter which contains the username. Defaults to 'username'.
     attribute username-parameter {xsd:token}?
 form-login.attlist &=
-    ## The name of the request parameter which contains the password. Defaults to 'j_password'.
+    ## The name of the request parameter which contains the password. Defaults to 'password'.
     attribute password-parameter {xsd:token}?
 form-login.attlist &=
     ## The URL that will be redirected to after successful authentication, if the user's previous action could not be resumed. This generally happens if the user visits a login page without having first requested a secured operation that triggers authentication. If unspecified, defaults to the root of the application.
@@ -524,7 +524,7 @@ session-management.attlist &=
     ## Allows injection of the SessionAuthenticationStrategy instance used by the SessionManagementFilter
     attribute session-authentication-strategy-ref {xsd:token}?
 session-management.attlist &=
-    ## Defines the URL of the error page which should be shown when the SessionAuthenticationStrategy raises an exception. If not set, an unauthorized (402) error code will be returned to the client. Note that this attribute doesn't apply if the error occurs during a form-based login, where the URL for authentication failure will take precedence.
+    ## Defines the URL of the error page which should be shown when the SessionAuthenticationStrategy raises an exception. If not set, an unauthorized (401) error code will be returned to the client. Note that this attribute doesn't apply if the error occurs during a form-based login, where the URL for authentication failure will take precedence.
     attribute session-authentication-error-url {xsd:token}?
 
 
@@ -739,4 +739,4 @@ position =
     ## The explicit position at which the custom-filter should be placed in the chain. Use if you are replacing a standard filter.
     attribute position {named-security-filter}
 
-named-security-filter = "FIRST" | "CHANNEL_FILTER" | "CONCURRENT_SESSION_FILTER" | "SECURITY_CONTEXT_FILTER" | "LOGOUT_FILTER" | "X509_FILTER" | "PRE_AUTH_FILTER" | "CAS_FILTER" | "FORM_LOGIN_FILTER" | "OPENID_FILTER" |"BASIC_AUTH_FILTER" | "SERVLET_API_SUPPORT_FILTER" | "REMEMBER_ME_FILTER" | "ANONYMOUS_FILTER" | "EXCEPTION_TRANSLATION_FILTER" | "SESSION_MANAGEMENT_FILTER" | "FILTER_SECURITY_INTERCEPTOR" | "SWITCH_USER_FILTER" | "LAST"
+named-security-filter = "FIRST" | "CHANNEL_FILTER" | "SECURITY_CONTEXT_FILTER" | "CONCURRENT_SESSION_FILTER" | "LOGOUT_FILTER" | "X509_FILTER" | "PRE_AUTH_FILTER" | "CAS_FILTER" | "FORM_LOGIN_FILTER" | "OPENID_FILTER" | "LOGIN_PAGE_FILTER" | "DIGEST_AUTH_FILTER" |"BASIC_AUTH_FILTER" | "REQUEST_CACHE_FILTER" | "SERVLET_API_SUPPORT_FILTER" | "JAAS_API_SUPPORT_FILTER" | "REMEMBER_ME_FILTER" | "ANONYMOUS_FILTER" | "SESSION_MANAGEMENT_FILTER" | "EXCEPTION_TRANSLATION_FILTER" | "FILTER_SECURITY_INTERCEPTOR" | "SWITCH_USER_FILTER" | "LAST"

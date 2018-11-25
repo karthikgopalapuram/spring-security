@@ -1,59 +1,78 @@
+import javax.security.auth.login.ConfigurationSpi;
+
 // Config Module build file
 
 apply plugin: 'groovy'
+apply plugin: 'trang'
 
 compileTestJava.dependsOn(':spring-security-core:compileTestJava')
 
-configurations {
-    // GRADLE-1124
-    compile.extendsFrom = []
-    testCompile.extendsFrom groovy
-}
-
 dependencies {
-    // NB: Don't add other compile time dependencies to the config module as this breaks tooling
-    compile project(':spring-security-core'),
-            project(':spring-security-web'),
-            "org.aspectj:aspectjweaver:$aspectjVersion",
-            'aopalliance:aopalliance:1.0',
-            "org.springframework:spring-aop:$springVersion",
-            "org.springframework:spring-context:$springVersion",
-            "org.springframework:spring-web:$springVersion",
-            "org.springframework:spring-beans:$springVersion"
+	// NB: Don't add other compile time dependencies to the config module as this breaks tooling
+	compile project(':spring-security-core'),
+			springCoreDependency,
+			'aopalliance:aopalliance:1.0',
+			"org.springframework:spring-aop:$springVersion",
+			"org.springframework:spring-context:$springVersion",
+			"org.springframework:spring-beans:$springVersion"
 
-    provided "javax.servlet:servlet-api:2.5"
+	optional project(':spring-security-web'),
+			 project(':spring-security-ldap'),
+			 project(':spring-security-openid'),
+			 project(':spring-security-messaging'),
+			"org.springframework:spring-web:$springVersion",
+			"org.springframework:spring-websocket:$springVersion",
+			 "org.springframework:spring-webmvc:$springVersion",
+			 "org.aspectj:aspectjweaver:$aspectjVersion",
+			 "org.springframework:spring-jdbc:$springVersion",
+			 "org.springframework:spring-tx:$springVersion"
 
-    groovy group: 'org.codehaus.groovy', name: 'groovy', version: '1.7.10'
+	provided "javax.servlet:javax.servlet-api:$servletApiVersion"
 
-    testCompile project(':spring-security-ldap'),
-                project(':spring-security-openid'),
-                project(':spring-security-core').sourceSets.test.output,
-                'javax.annotation:jsr250-api:1.0',
-                "org.springframework.ldap:spring-ldap-core:$springLdapVersion",
-                "org.springframework:spring-expression:$springVersion",
-                "org.springframework:spring-jdbc:$springVersion",
-                "org.springframework:spring-tx:$springVersion",
-                'org.spockframework:spock-core:0.5-groovy-1.7',
-                "org.slf4j:jcl-over-slf4j:$slf4jVersion",
-                "org.powermock:powermock-core:$powerMockVersion",
-                "org.powermock:powermock-api-support:$powerMockVersion",
-                "org.powermock:powermock-module-junit4-common:$powerMockVersion",
-                "org.powermock:powermock-module-junit4:$powerMockVersion",
-                "org.powermock:powermock-api-mockito:$powerMockVersion",
-                "org.powermock:powermock-reflect:$powerMockVersion"
-    testCompile('org.openid4java:openid4java-nodeps:0.9.6') {
-       exclude group: 'com.google.code.guice', module: 'guice'
-    }
+	testCompile project(':spring-security-cas'),
+				project(':spring-security-core').sourceSets.test.output,
+				project(':spring-security-aspects'),
+				'javax.annotation:jsr250-api:1.0',
+				"org.springframework.ldap:spring-ldap-core:$springLdapVersion",
+				"org.springframework:spring-expression:$springVersion",
+				"org.springframework:spring-jdbc:$springVersion",
+				"org.springframework:spring-orm:$springVersion",
+				"org.springframework:spring-tx:$springVersion",
+				"org.slf4j:jcl-over-slf4j:$slf4jVersion",
+				"org.eclipse.persistence:javax.persistence:2.0.5",
+				"org.hibernate:hibernate-entitymanager:4.1.0.Final",
+				"org.codehaus.groovy:groovy-all:$groovyVersion",
+				"org.apache.directory.server:apacheds-core:$apacheDsVersion",
+				"org.apache.directory.server:apacheds-core-entry:$apacheDsVersion",
+				"org.apache.directory.server:apacheds-protocol-shared:$apacheDsVersion",
+				"org.apache.directory.server:apacheds-protocol-ldap:$apacheDsVersion",
+				"org.apache.directory.server:apacheds-server-jndi:$apacheDsVersion",
+				'org.apache.directory.shared:shared-ldap:0.9.15',
+				'ldapsdk:ldapsdk:4.1',
+				powerMockDependencies,
+				 "org.hibernate:hibernate-entitymanager:3.6.10.Final",
+				"org.hsqldb:hsqldb:$hsqlVersion",
+				spockDependencies
 
+	testCompile('org.openid4java:openid4java-nodeps:0.9.6') {
+		exclude group: 'com.google.code.guice', module: 'guice'
+	}
+	testCompile("org.springframework.data:spring-data-jpa:$springDataJpaVersion") {
+		exclude group: 'org.aspectj', module: 'aspectjrt'
+	}
 
-    testRuntime "hsqldb:hsqldb:$hsqlVersion",
-                "cglib:cglib-nodep:2.2"
+	testRuntime "org.hsqldb:hsqldb:$hsqlVersion",
+				"cglib:cglib-nodep:$cglibVersion"
 }
 
 test {
-    inputs.file file("$rootDir/docs/manual/src/docbook/appendix-namespace.xml")
+	inputs.file file("$rootDir/docs/manual/src/docbook/appendix-namespace.xml")
 }
 
-integrationTest {
-    systemProperties['apacheDSWorkDir'] = "${buildDir}/apacheDSWork"
+rncToXsd {
+	rncDir = file('src/main/resources/org/springframework/security/config/')
+	xsdDir = rncDir
+	xslFile = new File(rncDir, 'spring-security.xsl')
 }
+
+build.dependsOn rncToXsd
